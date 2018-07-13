@@ -1,54 +1,66 @@
 import React, { Component } from 'react';
-import base from './base'
+import PluginsListLessUsed from './components/PluginsListLessUsed'
+
 class App extends Component {
   constructor(props){
     super(props)
     this.state = {
       plugins: {},
-      pluginsList: {},
-      pluginDetails: {}
+      mounted: false
     }
-    this.handlePluginsList = this.handlePluginsList.bind(this)
-    this.parsePluginsList = this.parsePluginsList.bind(this)
+    //this.handlePluginsList = this.handlePluginsList.bind(this)
+    //this.parsePluginsList = this.parsePluginsList.bind(this)
   }
-  
+  /*
   handlePluginsList(){
-    const {plugins} = this.state
-    const pluginsList = plugins.reduce((pluginsList, host) => {
+    const {dbPlugins} = this.state
+    const pluginsList = dbPlugins.reduce((pluginsList, host) => {
       return this.parsePluginsList(host.plugins_pouco_utilizados, pluginsList)
     }, {})
-    this.setState({pluginsList: pluginsList})
+    this.setState({plugins: pluginsList, mounted: true})
   }
   
   parsePluginsList(plugins, pluginsList){
-    return Object.keys(plugins).reduce((plugins, plugin, pluginName) =>{
+    const pluginsReturn =  Object.keys(plugins).reduce((pluginsList, pluginName) =>{
       if (pluginsList.hasOwnProperty(pluginName)) {
-        pluginsList[pluginName]['quantidade'] += plugin.quantidade  
-        pluginsList[pluginName]['hosts'] = [...plugin.hosts]
+        pluginsList[pluginName]['quantidade'] += plugins[pluginName].quantidade  
+        if (pluginsList[pluginName].hasOwnProperty('hosts')){
+          pluginsList[pluginName]['hosts'].concat(plugins[pluginName].hosts)
+        }else {
+          pluginsList[pluginName]['hosts'] = []
+        } 
       } else {
-        pluginsList[pluginName] = plugin
+        pluginsList[pluginName] = plugins[pluginName]
       }
+
       return pluginsList
     }, pluginsList)
+    return pluginsReturn
   }
-
+  */
   componentDidMount(){
-    const listener = this.props.base.bindToState('data', {
+    this.props.base.bindToState('data/plugins_pouco_utilizados', {
       context: this,
       state: 'plugins',
-      asArray: true,
-      then: () => {this.handlePluginsList()}
+      then: () => this.setState({mounted: true})
     })
   }
-
+  
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <h1 className="App-title">Plugins Lebga 4</h1>
-        </header>
-      </div>
-    );
+      <div className='container'>
+        <div className='row'>
+          <h1 className='text-center'>Lebga 4</h1>
+        </div>
+        <div className='row'>
+          <div className='col'>
+            <h2 className='text-center'>Plugins</h2>
+          </div>
+        </div>
+        {(this.state.mounted && <PluginsListLessUsed plugins={this.state.plugins} />) ||
+        <p>Loading</p>}
+    </div>
+  );
   }
 }
 
